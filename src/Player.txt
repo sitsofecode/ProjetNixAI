@@ -1,0 +1,32 @@
+import { View, Text } from "react-native";
+import React, { useRef, useState } from "react";
+import { ResizeMode, Video } from "expo-av";
+
+export default function Player({ route }) {
+  const video = route.params;
+  const videoRef = useRef(null);
+  const [statut, setStatut] = useState();
+  return (
+    <View>
+      <Text>player</Text>
+      <Video
+        ref={videoRef}
+        source={{
+          uri: video.uri$,
+        }}
+        useNativeControls
+        resizeMode={ResizeMode.CONTAIN}
+        isLooping
+        onPlaybackStatusUpdate={(status) => setStatut(() => status)}
+      />
+      <Button
+        title={statut.isPlaying ? "Pause" : "Play"}
+        onPress={() =>
+          statut.isPlaying
+            ? video.current.pauseAsync()
+            : video.current.playAsync()
+        }
+      ></Button>
+    </View>
+  );
+}
