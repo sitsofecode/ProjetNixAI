@@ -25,7 +25,6 @@ const VideoList = ({ navigation }) => {
   const [currentItem, setCurrentItem] = useState(null);
 
   const formatDuration = (duration) => {
-    // Fonction pour formater la durée de la vidéo (vous pouvez personnaliser selon vos besoins)
     const minutes = Math.floor(duration / 60);
     const seconds = Math.floor(duration % 60);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;

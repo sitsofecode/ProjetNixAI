@@ -22,7 +22,6 @@ export default function Folder() {
     if (!permissionResponse || permissionResponse.status !== "granted") {
       const response = await requestPermission();
       if (response.status !== "granted") {
-        // Gérer le cas où la permission est refusée
         return;
       }
     }

@@ -9,7 +9,7 @@ export default function ExploreFolder() {
   );
 }
 
-// function AlbumEntry({ album }) {
+// function ExploreFolder ({ album }) {
 //     const [assets, setAssets] = useState([]);
 
 //     useEffect(() => {

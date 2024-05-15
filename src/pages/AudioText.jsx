@@ -31,7 +31,6 @@ export default function AudioText() {
 
     // Call function to get permission
     getPermission();
-    // Cleanup upon first render
     return () => {
       setIsComponentMounted(false);
       if (recording) {
@@ -42,7 +41,6 @@ export default function AudioText() {
 
   async function startRecording() {
     try {
-      // needed for IoS
       if (audioPermission) {
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
@@ -62,15 +60,13 @@ export default function AudioText() {
       console.error("Failed to start recording", error);
     }
   }
+
   async function stopRecording() {
     try {
       if (recordingStatus === "recording") {
         console.log("Stopping Recording");
-
         await recording.stopAndUnloadAsync();
         const recordingUri = recording.getURI();
-
-        console.log("uri : ", recordingUri);
 
         // Create a file name for the recording
         const fileName = `recording-${Date.now()}.caf`;
@@ -85,33 +81,19 @@ export default function AudioText() {
           to: FileSystem.documentDirectory + "recordings/" + `${fileName}`,
         });
 
-        // Call function to send audio to API after recording is stopped
-        // Make sure to use the correct file path after moving the file
+        //call send to api
         const audioFilePath =
           FileSystem.documentDirectory + "recordings/" + `${fileName}`;
-        try {
-          const formData = new FormData();
-          formData.append("audioFile", {
-            uri: audioFilePath,
-            type: "audio/x-caf",
-            name: "recording.caf",
-          });
 
-          console.log(formData);
-          const audioResponse = await ApiServices._sendAudio(formData);
-          console.log(audioResponse);
-        } catch (error) {
-          console.error("Erreur lors de l'envoi du fichier audio:", error);
-        }
+        await sendAudioToAPI(audioFilePath);
 
-        // This is for simply playing the sound back
         const playbackObject = new Audio.Sound();
         await playbackObject.loadAsync({
-          uri: audioFilePath,
+          uri: FileSystem.documentDirectory + "recordings/" + `${fileName}`,
         });
         await playbackObject.playAsync();
 
-        // Reset our states to record again
+        // resert our states to record again
         setRecording(null);
         setRecordingStatus("stopped");
       }
@@ -120,23 +102,24 @@ export default function AudioText() {
     }
   }
 
-  // async function sendAudioToAPI() {
-  //   const uri = recording.getURI();
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("audioFile", {
-  //       uri: uri,
-  //       type: "audio/x-caf",
-  //       name: "recording.caf",
-  //     });
+  async function sendAudioToAPI(audioFilePath) {
+    console.log("uri :", audioFilePath);
 
-  //     console.log(formData);
-  //     const audioResponse = await ApiServices._sendAudio(formData);
-  //     console.log(audioResponse);
-  //   } catch (error) {
-  //     console.error("Erreur lors de l'envoi du fichier audio:", error);
-  //   }
-  // }
+    try {
+      const formData = new FormData();
+      formData.append("audioFile", {
+        uri: audioFilePath,
+        type: "audio/x-caf",
+        name: "recording.caf",
+      });
+
+      console.log(formData);
+      // const audioResponse = await ApiServices._sendAudio(formData);
+      // console.log(audioResponse);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du fichier audio:", error);
+    }
+  }
 
   async function handleRecordButtonPress() {
     if (recording) {

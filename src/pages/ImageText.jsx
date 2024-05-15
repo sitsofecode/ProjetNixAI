@@ -33,17 +33,15 @@ export default function ImageText() {
     quality: 0.5,
     base64: true,
     exif: true,
-    skipProcessing: true, // Pour éviter le traitement de l'image
-    ratio: "16:9", // Définir le ratio pour Android
+    skipProcessing: true,
+    ratio: "16:9",
   };
 
   if (!permission) {
-    // Camera permissions are still loading.
     return <View />;
   }
 
   if (!permission.granted) {
-    // Camera permissions are not granted yet.
     return (
       <View style={styles.container}>
         <Text style={{ textAlign: "center" }}>
@@ -82,7 +80,6 @@ export default function ImageText() {
   };
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
@@ -108,10 +105,8 @@ export default function ImageText() {
 
       console.log("Réponse de l'API:", photoResponse);
       // setText(response.data);
-      // Traitez la réponse de l'API ici selon vos besoins
     } catch (error) {
       console.error("Error uploading photo:", error);
-      // Handle specific errors here
     }
   };
 

@@ -29,7 +29,6 @@ const Player = ({ route, navigation }) => {
   const handlePlaybackStatusUpdate = useCallback((status) => {
     setCurrentTime(status.positionMillis);
     if (status.didJustFinish) {
-      // Handle video finish if needed
     }
   }, []);
 
@@ -93,10 +92,8 @@ const Player = ({ route, navigation }) => {
       const response = await ApiServices._sendVideo(formData);
 
       console.log("Réponse de l'API :", response.data);
-      // Gérer la réponse de l'API ici
     } catch (error) {
       console.error("Erreur lors de l'envoi de la vidéo à l'API :", error);
-      // Gérer les erreurs ici
     }
   };
 
@@ -190,7 +187,6 @@ const styles = StyleSheet.create({
 
 export default Player;
 
-// Here uri means the url of the video you captured
 // const CreateFormData = (uri) => {
 //   const form = new FormData();
 //   form.append("File", {
@@ -198,7 +194,3 @@ export default Player;
 //     uri: uri,
 //     type: "video/mp4",
 //   });
-
-// Now perform a post request here by adding this form in the body part of the request
-// Then you can handle the file you sent in the backend i.e server
-// };
