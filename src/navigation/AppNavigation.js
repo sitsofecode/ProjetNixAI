@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Folder from "../pages/Folder";
 import VideoList from "../pages/VideoList";
-import { StyleSheet } from "react-native";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import Playlist from "../pages/Playlist";
 import Player from "../pages/Player";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { mainColor } from "../constantes/colorConstante";
 import { initialTheme } from "../constantes/Theme";
+import ImageText from "../pages/ImageText";
+import AudioText from "../pages/AudioText";
+import WelcomScreen from "../pages/WelcomScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -35,10 +37,10 @@ const TabBarNavigation = () => {
             iconName = "folder";
           } else if (route.name === "VideoList") {
             iconName = "video";
-          } else if (route.name === "PlayList") {
-            iconName = "playlist-play";
-          } else if (route.name === "Player") {
-            iconName = "play-box-outline";
+          } else if (route.name === "Image") {
+            iconName = "image";
+          } else if (route.name === "Audio") {
+            iconName = "microphone";
           }
 
           return (
@@ -82,8 +84,19 @@ const TabBarNavigation = () => {
         }}
       />
       <Tab.Screen
-        name="PlayList"
-        component={Playlist}
+        name="Image"
+        component={ImageText}
+        options={{
+          headerShown: false,
+          transitionSpec: {
+            open: config,
+            close: config,
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Audio"
+        component={AudioText}
         options={{
           headerShown: false,
           transitionSpec: {
@@ -100,17 +113,35 @@ const TabBarNavigation = () => {
 const Stack = createNativeStackNavigator();
 
 const AppNavigation = () => {
-  if (isLoading) {
-    return (
-      <View style={[styles.container, styles.horizontal]}>
-        <ActivityIndicator size="large" color="#00ff00" />
-      </View>
-    );
-  }
+  const [isLoading, setLoading] = useState(true);
 
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  }, []);
+  //   if (isLoading) {
+  //     return (
+  //       <View style={[styles.container, styles.horizontal]}>
+  //         <ActivityIndicator size="large"  />
+  //       </View>
+  //     );
+  //   }
+  // else {
   return (
     <NavigationContainer style={styles.container}>
       <Stack.Navigator>
+        <Stack.Screen
+          name="welcome"
+          component={WelcomScreen}
+          options={{
+            headerShown: false,
+            transitionSpec: {
+              open: config,
+              close: config,
+            },
+          }}
+        />
         <Stack.Screen
           name="HomeTabs"
           component={TabBarNavigation}
@@ -126,7 +157,7 @@ const AppNavigation = () => {
           name="Player"
           component={Player}
           options={{
-            headerShown: true,
+            headerShown: false,
             transitionSpec: {
               open: config,
               close: config,
@@ -137,6 +168,7 @@ const AppNavigation = () => {
     </NavigationContainer>
   );
 };
+// };
 
 const styles = StyleSheet.create({
   container: {

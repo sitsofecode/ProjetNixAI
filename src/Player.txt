@@ -30,3 +30,439 @@ export default function Player({ route }) {
     </View>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useRef, useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  Button,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from "react-native";
+import { ResizeMode, Video } from "expo-av";
+import { initialTheme } from "../constantes/Theme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+import { mainColor } from "../constantes/colorConstante";
+
+export default function Player({ route, navigation }) {
+  const video = route.params;
+  const videoRef = useRef(null);
+  const [status, setStatus] = useState({});
+
+  const [progress, setProgress] = useState(new Animated.Value(0));
+
+  const initProress = () => {
+    Animated.timing(progress, {
+      toValue: 75,
+      duration: 2000,
+    }).start();
+  };
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playAsync();
+    }
+    console.log("url = ", videoRef.current);
+
+    // initProress();
+  }, [videoRef]);
+
+  return (
+    <View style={styles.container}>
+      <View style={{ flexDirection: "row", padding: 20 }}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <MaterialCommunityIcons
+            name="arrow-left-drop-circle"
+            color={initialTheme.modalbg}
+            size={30}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => {}} style={styles.optionButton}>
+          <MaterialCommunityIcons
+            name="dots-vertical"
+            color={initialTheme.modalbg}
+            size={30}
+          />
+        </TouchableOpacity>
+      </View>
+      <Video
+        ref={videoRef}
+        source={{
+          uri: video?.uri,
+          // {require("../../assets/52849-473336269_large.mp4")}
+        }}
+        style={styles.video}
+        useNativeControls={false}
+        isMuted={false}
+        isLooping={true}
+        shouldPlay={true}
+        resizeMode={ResizeMode.CONTAIN}
+        onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+      />
+      <View>
+        <View style={styles.PreogressBar}>
+          <Animated.View style={[styles.bar, { width: progress }]} />
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+
+    backgroundColor: initialTheme.background,
+  },
+  video: {
+    alignSelf: "stretch",
+    flex: 1,
+  },
+  bar: {
+    borderRadius: 10,
+    width: wp(80),
+    margin: wp(10),
+    backgroundColor: mainColor,
+  },
+  text: { color: initialTheme.text },
+  controls: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  optionButton: {
+    position: "absolute",
+    top: 15,
+    right: 15,
+  },
+  PreogressBar: {
+    height: hp(1),
+    backgroundColor: "#ccc",
+    borderRadius: 10,
+    width: wp(80),
+    margin: wp(10),
+  },
+});
+
+// const CreateFormData = (uri) => {
+//   // Here uri means the url of the video you captured
+//   const form = new FormData();
+//   form.append("File", {
+//     name: "SampleVideo.mp4",
+//     uri: uri,
+//     type: "video/mp4",
+//   });
+
+// Now perform a post request here by adding this form in the body part of the request
+// Then you can handle the file you sent in the backend i.e server
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ import React, { useRef, useState, useEffect } from "react";
+import { Dimensions, FlatList, View } from "react-native";
+import { Video } from "expo-av";
+import { Gesture, GestureDetector, GestureHandlerRootView } from "react-native-gesture-handler";
+import * as ScreenOrientation from "expo-screen-orientation";
+import VideoControls from "../../components/VideoControls/VideoControls";
+
+const playbackSpeedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+const PlayLessonScreen = ({ navigation, route }) => {
+  const [lessons, setLessons] = useState([]);
+  const [selectedLesson, setSelectedLesson] = useState({});
+  const videoRef = useRef(null);
+  const [currentLessonIndex, setCurrentLessonIndex] = useState(0);
+  const [orientation, setOrientation] = useState(1);
+  const [showControls, setShowControls] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(true);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const doubleTap = Gesture.Tap()
+    .numberOfTaps(2)
+    .onStart((event) => {
+    //get the tap position on X
+      const touchX = event.absoluteX;
+      let mid = Dimensions.get("screen").width / 2;
+
+    //if tap position is before the mid point, set video back by 10s
+      if (touchX < mid) {
+        videoRef.current.getStatusAsync().then((status) => {
+          const newPosition = Math.max(status.positionMillis - 10000, 0);
+          videoRef.current.setPositionAsync(newPosition);
+        });
+      } 
+      //if tap position is before the mid point, set video forward by 10s
+      else {
+        videoRef.current.getStatusAsync().then((status) => {
+          const newPosition = Math.min(
+            status.positionMillis + 10000,
+            status.durationMillis
+          );
+          videoRef.current.setPositionAsync(newPosition);
+        });
+      }
+    });
+
+  const singleTap = Gesture.Tap().onStart((event) => {
+    setShowControls(!showControls);
+    // Simulate show/hide controls behavior here
+  });
+
+  useEffect(() => {
+    // Simulate fetching lessons by course
+    const fakeLessons = [
+      {
+        lessonId: "1",
+        lessonVideoUrl: "https://example.com/video1.mp4",
+        lessonTitle: "Lesson 1",
+        lessonDescription: "Introduction to React Native 1",
+        videoTotalDuration: "600",
+        lessonThumbnailImageUrl: "https://example.com/thumbnail1.jpg",
+      },
+      {
+        lessonId: "2",
+        lessonVideoUrl: "https://example.com/video2.mp4",
+        lessonTitle: "Lesson 2",
+        lessonDescription: "Introduction to React Native 2",
+        videoTotalDuration: "800",
+        lessonThumbnailImageUrl: "https://example.com/thumbnail2.jpg",
+      },
+      // Add more lessons here
+    ];
+    setLessons(fakeLessons);
+    setSelectedLesson(fakeLessons[0]);
+  }, []);
+
+  //sets the current time, if video is finished, moves to the next video
+   const handlePlaybackStatusUpdate = (status) => {
+    setCurrentTime(status.positionMillis);
+    if (status.didJustFinish) {
+      playNextVideo();
+    }
+  };
+
+  const togglePlayPause = () => {
+    if (isPlaying) {
+      videoRef.current.pauseAsync();
+    } else {
+      videoRef.current.playAsync();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const playNextVideo = () => {
+    if (currentLessonIndex < lessons.length - 1) {
+      setCurrentLessonIndex((prevIndex) => prevIndex + 1);
+    }
+  };
+
+  const playPreviousVideo = () => {
+    if (currentLessonIndex > 0) {
+      setCurrentLessonIndex((prevIndex) => prevIndex - 1);
+    }
+  };
+
+  const togglePlaybackSpeed = () => {
+    //gets the next playback speed index
+    const nextSpeedIndex = playbackSpeedOptions.indexOf(playbackSpeed) + 1;
+    if (nextSpeedIndex < playbackSpeedOptions.length) {
+      videoRef.current.setRateAsync(playbackSpeedOptions[nextSpeedIndex], true);
+      setPlaybackSpeed(playbackSpeedOptions[nextSpeedIndex]);
+    }
+    //if the last option i.e. 2x speed is applied. then moves to first option 
+    else {
+      videoRef.current.setRateAsync(playbackSpeedOptions[0], true);
+      setPlaybackSpeed(playbackSpeedOptions[0]);
+    }
+  };
+
+  const toggleMute = () => {
+    videoRef.current.setIsMutedAsync(isMuted);
+    setIsMuted(!isMuted);
+  };
+
+  const toggleFullscreen = async () => {
+    if (!isFullscreen) {
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.LANDSCAPE_LEFT
+      );
+      setIsFullscreen(true);
+    } else {
+      await ScreenOrientation.lockAsync(
+        ScreenOrientation.OrientationLock.PORTRAIT_UP
+      );
+      setIsFullscreen(false);
+    }
+    setOrientation(await ScreenOrientation.getOrientationAsync());
+  };
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Spinner visible={isLoading} size="large" />
+      {lessons.length > 0 && (
+        <>
+          <GestureDetector gesture={Gesture.Exclusive(doubleTap, singleTap)}>
+            <Video
+              ref={videoRef}
+              source={{
+                uri: lessons[currentLessonIndex]?.lessonVideoUrl,
+              }}
+              rate={playbackSpeed}
+              isMuted={isMuted}
+              shouldPlay={isPlaying}
+              resizeMode="cover"
+              onPlaybackStatusUpdate={handlePlaybackStatusUpdate}
+              style={{ flex: 1 }}
+            />
+          </GestureDetector>
+          {showControls && (
+            <VideoControls
+              onTogglePlayPause={togglePlayPause}
+              onPlayPreviousVideo={playPreviousVideo}
+              onPlayNextVideo={playNextVideo}
+              onToggleMute={toggleMute}
+              onTogglePlaybackSpeed={togglePlaybackSpeed}
+              onSeek={(value) => {
+                videoRef.current.setPositionAsync(+value);
+                setCurrentTime(+value);
+              }}
+              onToggleFullscreen={toggleFullscreen}
+              duration={+selectedLesson?.videoTotalDuration}
+              currentTime={currentTime}
+              rate={playbackSpeed}
+              isMuted={isMuted}
+              shouldPlay={isPlaying}
+              fullScreenValue={isFullscreen}
+            />
+          )}
+        </>
+      )}
+      //this section is only displayed when fullscreen is not active
+      {orientation == 1 && (
+        <View>
+          {/* Simulate other UI elements here */}
+        </View>
+      )}
+    </GestureHandlerRootView>
+  );
+};
+
+export default PlayLessonScreen; de ces code peux tu m'extraitre le fonctionnement des controle suivant le skip / go back ,  les controle du full screen puis le controle du slider 
+
+
+
+
+
+
+
+
+      <View style={styles.container}>
+        <View style={{ flexDirection: "row", padding: 20 }}>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack();
+            }}
+          >
+
+            <MaterialCommunityIcons
+              name="arrow-left-drop-circle"
+              color={initialTheme.modalbg}
+              size={30}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => {}} style={styles.optionButton}>
+            <MaterialCommunityIcons
+              name="dots-vertical"
+              color={initialTheme.modalbg}
+              size={30}
+            />
+          </TouchableOpacity>
+        </View>
+
+
+
+        <Video
+          ref={videoRef}
+          source={{ uri: video?.uri }}
+          style={styles.video}
+          useNativeControls={true}
+          isLooping
+          shouldPlay={true}
+          sliderColor={"#CE4A52"}
+          resizeMode={ResizeMode.CONTAIN}
+          onPlaybackStatusUpdate={(status) => {
+            setStatus(() => status);
+            console.log(status.isLoaded, !status.isPlaying);
+            const videoDurationSeconds = status.durationMillis * 1000; // Durée en secondes
+            const videoPositionSeconds = status.positionMillis * 1000;
+            const dure = videoPositionSeconds / videoDurationSeconds;
+            // console.log(dure.toFixed(1));
+            setVideoProgress(dure);
+            // if (status.isLoaded && !status.isPlaying) {
+
+            // }
+          }}
+        />
+        <Button
+          title={status.isPlaying ? "Pause" : "Play"}
+          onPress={() =>
+            status.isPlaying
+              ? videoRef.current.pauseAsync()
+              : videoRef.current.playAsync()
+          }
+        ></Button>
+        <Button title="Rewind" onPress={handleRewind} />
+        <Button title="Fast Forward" onPress={handleFastForward} />
+        <View>
+          <ProgressBar
+            progress={videoProgress}
+            width={wp(90)}
+            height={hp(1)}
+            color={mainColor}
+            style={styles.PreogressBar}
+            borderWidth={0}
+          />
+        </View>
+      </View>

@@ -11,7 +11,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { mainColor } from "../constantes/colorConstante";
 import { initialTheme } from "../constantes/Theme";
 
-export default function OptionalModal({ visible, onClose, currentItem }) {
+export default function VideoModal({ visible, onClose, currentItem }) {
   const filename = currentItem?.filename;
   return (
     <>
@@ -25,20 +25,42 @@ export default function OptionalModal({ visible, onClose, currentItem }) {
             <TouchableWithoutFeedback
             // onPress={onPlay}
             >
-              <View style={{ flexDirection: "row " }}>
-                <MaterialCommunityIcons name="play" size={25} />
-                <Text style={styles.option}> Play </Text>
+              <View>
+                <Text style={styles.option}>
+                  <MaterialCommunityIcons
+                    name="play"
+                    size={20}
+                    color={initialTheme.text}
+                  />
+                  Play
+                </Text>
               </View>
             </TouchableWithoutFeedback>
             <TouchableWithoutFeedback
             // onPress={onTranscript}
             >
-              <Text style={styles.option}>Transcript this video </Text>
+              <Text style={styles.option}>
+                {" "}
+                <MaterialCommunityIcons
+                  name="play"
+                  size={20}
+                  color={initialTheme.text}
+                />
+                Transcript this video
+              </Text>
             </TouchableWithoutFeedback>
             <TouchableWithoutFeedback
             //  onPress={onInfo}
             >
-              <Text style={styles.option}>Information </Text>
+              <Text style={styles.option}>
+                {" "}
+                <MaterialCommunityIcons
+                  name="play"
+                  size={20}
+                  color={initialTheme.text}
+                />
+                Information{" "}
+              </Text>
             </TouchableWithoutFeedback>
           </View>
         </View>
@@ -56,10 +78,10 @@ styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     left: 0,
-    backgroundColor: initialTheme.background,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     zIndex: 1000,
+    backgroundColor: initialTheme.background,
   },
   modalbg: {
     position: "absolute",
@@ -67,7 +89,8 @@ styles = StyleSheet.create({
     bottom: 0,
     right: 0,
     left: 0,
-    backgroundColor: "rgba(0 , 0 , 0 , 0.2)",
+    backgroundColor: initialTheme.modalbg,
+    opacity: 0.5,
   },
   title: {
     fontSize: 19,
@@ -83,7 +106,7 @@ styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 10,
     fontWeight: "bold",
-    color: "#000",
+    color: initialTheme.text,
     letterSpacing: 2,
   },
 });

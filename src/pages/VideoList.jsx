@@ -2,20 +2,23 @@ import React, { useContext, useState } from "react";
 import {
   StyleSheet,
   Text,
-  FlatList,
   Dimensions,
   View,
-  VideoPlayer,
   TouchableWithoutFeedback,
   Image,
   TouchableOpacity,
 } from "react-native";
 import { VideoContext } from "../context/videoContext";
 import { LayoutProvider, RecyclerListView } from "recyclerlistview";
-import OptionalModal from "../components/OptionalModal";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Video } from "expo-av";
 
+import {
+  widthPercentageToDP as wp,
+  heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+
+import { initialTheme } from "../constantes/Theme";
+import VideoModal from "../components/VideoModal";
 const VideoList = ({ navigation }) => {
   const { videoFiles } = useContext(VideoContext);
   const [showModal, setShowModal] = useState(false);
@@ -57,12 +60,19 @@ const VideoList = ({ navigation }) => {
       <TouchableWithoutFeedback
         underlayColor="#DDDDDD"
         onPress={() => OnVideoPress(item)}
-        style={styles.singleItem}
       >
-        <View key={item.id}>
+        <View key={item.id} style={styles.singleItem}>
           <Image
-            source={{ uri: item.uri }}
-            style={{ width: "100%", height: "80%", resizeMode: "cover" }}
+            source={{
+              uri: item.uri,
+              // uri: "https://img.freepik.com/photos-gratuite/prise-vue-au-grand-angle-seul-arbre-poussant-sous-ciel-assombri-pendant-coucher-soleil-entoure-herbe_181624-22807.jpg",
+            }}
+            style={{
+              width: "100%",
+              height: "80%",
+              resizeMode: "cover",
+              borderRadius: hp(2),
+            }}
           />
 
           <Text numberOfLines={1} style={styles.videoName}>
@@ -79,7 +89,11 @@ const VideoList = ({ navigation }) => {
             }}
             style={styles.optionButton}
           >
-            <MaterialCommunityIcons name="menu" color="gray" size={20} />
+            <MaterialCommunityIcons
+              name="dots-vertical"
+              color={initialTheme.input}
+              size={20}
+            />
           </TouchableOpacity>
         </View>
       </TouchableWithoutFeedback>
@@ -91,13 +105,21 @@ const VideoList = ({ navigation }) => {
       {({ dataProvider }) => {
         return (
           <View style={styles.container}>
+            <Text style={styles.text}>
+              <MaterialCommunityIcons
+                name="play-box-multiple"
+                color={initialTheme.color}
+                size={hp(5)}
+              />{" "}
+              Nix video player
+            </Text>
             <RecyclerListView
               dataProvider={dataProvider}
               layoutProvider={layoutProvider}
               rowRenderer={rowRenderer}
               style={{ flex: 1 }}
             />
-            <OptionalModal
+            <VideoModal
               visible={showModal}
               onClose={() => setShowModal(false)}
               currentItem={currentItem}
@@ -112,17 +134,20 @@ const VideoList = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: initialTheme.background,
+    justifyContent: "center",
   },
   singleItem: {
-    width: Dimensions.get("window").width / 2 - 20,
+    width: Dimensions.get("window").width / 2 - 10,
     padding: 10,
-    margin: 20,
+    marginHorizontal: 10,
     textAlign: "center",
-    borderRadius: 5,
+    borderRadius: hp(2),
   },
   videoName: {
     fontSize: 16,
     marginTop: 5,
+    color: initialTheme.text,
   },
   videoDuration: {
     fontSize: 10,
@@ -131,8 +156,14 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     position: "absolute",
-    top: 10,
-    right: 10,
+    top: 15,
+    right: 15,
+  },
+  text: {
+    color: initialTheme.text,
+    marginTop: hp(2),
+    marginHorizontal: wp(5),
+    fontSize: hp(5),
   },
 });
 
